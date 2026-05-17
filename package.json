@@ -1,0 +1,15 @@
+{
+  "name": "chatpdf-backend",
+  "version": "1.0.0",
+  "description": "backend system of chatpdf project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^25.8.0",
+    "express": "^5.2.1"
+  }
+}
