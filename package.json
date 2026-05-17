@@ -1,7 +1,7 @@
 {
   "name": "chatpdf-backend",
   "version": "1.0.0",
-<<<<<<< HEAD
+  "description": "backend system of chatpdf project",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/server.js",
@@ -10,7 +10,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -20,17 +19,5 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
-=======
-  "description": "backend system of chatpdf project",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@types/node": "^25.8.0",
-    "express": "^5.2.1"
->>>>>>> 01571ad26673d3b7f768326fc0d2cf84dcdf59d8
   }
 }
