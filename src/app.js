@@ -3,6 +3,8 @@ import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import prisma from "./config/db.js";
+import errorMiddleware from "./middlewares/error.middleware.js";
+import asyncHandler from "./utils/asyncHandler.js";
 
 const app = express();
 
@@ -24,6 +26,7 @@ app.get("/", (req, res) => {
 
 
 
+
 app.get("/test-db", async (req, res) => {
   const data = await prisma.test.findMany();
 
@@ -32,5 +35,14 @@ app.get("/test-db", async (req, res) => {
     data,
   });
 });
+
+app.use(errorMiddleware);
+
+app.get(
+  "/error-test",
+  asyncHandler(async (req, res) => {
+    throw new Error("Test error");
+  })
+);
 
 export default app;
