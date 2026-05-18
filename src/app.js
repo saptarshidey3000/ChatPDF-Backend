@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import prisma from "./config/db.js";
 
 const app = express();
 
@@ -18,6 +19,17 @@ app.get("/", (req, res) => {
   res.json({
     success: true,
     message: "Backend running",
+  });
+});
+
+
+
+app.get("/test-db", async (req, res) => {
+  const data = await prisma.test.findMany();
+
+  res.json({
+    success: true,
+    data,
   });
 });
 

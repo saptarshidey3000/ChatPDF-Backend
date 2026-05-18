@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "backend system of chatpdf project",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
@@ -11,12 +12,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "morgan": "^1.10.1",
+    "pg": "^8.21.0",
     "prisma": "^7.8.0"
   },
   "devDependencies": {
