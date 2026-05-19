@@ -9,6 +9,7 @@ import errorMiddleware from "./middlewares/error.middleware.js";
 import asyncHandler from "./utils/asyncHandler.js";
 
 import { clerkMiddleware } from "@clerk/express";
+import testRoutes from "./routes/test.routes.js";
 
 const app = express();
 
@@ -77,6 +78,7 @@ app.get("/protected", (req, res) => {
   });
 });
 
+app.use("/api/test", testRoutes);
 
 // Handle all application errors
 app.use(errorMiddleware);
