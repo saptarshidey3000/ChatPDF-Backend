@@ -71,7 +71,9 @@ app.get(
 app.get("/protected", (req, res) => {
   res.json({
     success: true,
+    authExists: !!req.auth,
     auth: req.auth,
+    userId: req.auth?.userId || null,
   });
 });
 
