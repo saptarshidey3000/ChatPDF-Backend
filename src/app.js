@@ -10,6 +10,7 @@ import asyncHandler from "./utils/asyncHandler.js";
 
 import { clerkMiddleware } from "@clerk/express";
 import testRoutes from "./routes/test.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
 
 const app = express();
 
@@ -48,6 +49,8 @@ app.get("/", (req, res) => {
 });
 
 
+
+
 // Test PostgreSQL connection
 app.get("/test-db", async (req, res) => {
   const data = await prisma.test.findMany();
@@ -56,6 +59,9 @@ app.get("/test-db", async (req, res) => {
     success: true,
     data,
   });
+ //upload routes
+app.use("/api/v1/upload", uploadRoutes);
+  
 });
 
 
