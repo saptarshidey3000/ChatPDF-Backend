@@ -58,10 +58,7 @@ app.get("/test-db", async (req, res) => {
   res.json({
     success: true,
     data,
-  });
- //upload routes
-app.use("/api/v1/upload", uploadRoutes);
-  
+  });  
 });
 
 
@@ -85,6 +82,9 @@ app.get("/protected", (req, res) => {
 });
 
 app.use("/api/test", testRoutes);
+
+ //upload routes
+app.use("/api/v1/upload", uploadRoutes);
 
 // Handle all application errors
 app.use(errorMiddleware);

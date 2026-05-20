@@ -1,5 +1,5 @@
-const authMiddleware = (req, res, next) => {
-   try {
+const authMiddleware = async (req, res, next) => {
+  try {
     const clerkUserId = req.auth?.userId;
 
     if (!clerkUserId) {
