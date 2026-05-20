@@ -21,6 +21,7 @@
     "express": "^5.2.1",
     "morgan": "^1.10.1",
     "multer": "^2.1.1",
+    "pdf-parse": "^2.4.5",
     "pg": "^8.21.0",
     "prisma": "^6.19.3",
     "uploadthing": "^6.12.0"

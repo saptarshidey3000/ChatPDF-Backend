@@ -1,15 +1,9 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-}
-
 model User {
   id            String   @id @default(cuid())
+
   clerkUserId   String   @unique
   email         String   @unique
+
   fullName      String?
   profileImage  String?
 
@@ -22,39 +16,74 @@ model User {
 }
 
 model Pdf {
-  id              String   @id @default(cuid())
+  id                String   @id @default(cuid())
 
-  fileName        String
-  originalName    String
+  fileName          String
+  originalName      String
 
-  fileUrl         String
-  fileSize        Int
+  fileUrl           String
+  fileSize          Int
 
-  totalPages      Int?
-  processingStatus String @default("PROCESSING")
+  totalPages        Int?
 
-  userId          String
-  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  processingStatus  String   @default("PROCESSING")
 
-  chats           Chat[]
+  userId            String
+  user              User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  chats             Chat[]
+  chunks            PdfChunk[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@index([userId])
   @@index([processingStatus])
 }
 
 model Chat {
-  id            String   @id @default(cuid())
+  id              String   @id @default(cuid())
 
-  userMessage   String   @db.Text
-  aiResponse    String   @db.Text
+  userMessage     String   @db.Text
+  aiResponse      String   @db.Text
 
-  pdfId         String
-  pdf           Pdf @relation(fields: [pdfId], references: [id], onDelete: Cascade)
+  pdfId           String
+  pdf             Pdf @relation(
+    fields: [pdfId],
+    references: [id],
+    onDelete: Cascade
+  )
 
-  createdAt     DateTime @default(now())
+  createdAt       DateTime @default(now())
 
   @@index([pdfId])
+}
+
+model PdfChunk {
+  id              String   @id @default(cuid())
+
+  pdfId           String
+  pdf             Pdf @relation(
+    fields: [pdfId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  chunkIndex      Int
+
+  content         String   @db.Text
+
+  pageNumber      Int
+
+  tokenCount      Int?
+
+  createdAt       DateTime @default(now())
+
+  @@index([pdfId])
+  @@index([pageNumber])
+  @@index([chunkIndex])
 }
