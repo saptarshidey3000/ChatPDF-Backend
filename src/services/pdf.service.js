@@ -11,3 +11,14 @@ export const createPdf = async (data) => {
     },
   });
 };
+
+export const getUserPdfs = async (userId) => {
+  return await prisma.pdf.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
