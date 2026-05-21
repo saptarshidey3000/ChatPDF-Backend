@@ -1,3 +1,12 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model User {
   id            String   @id @default(cuid())
 
@@ -29,11 +38,7 @@ model Pdf {
   processingStatus  String   @default("PROCESSING")
 
   userId            String
-  user              User @relation(
-    fields: [userId],
-    references: [id],
-    onDelete: Cascade
-  )
+  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   chats             Chat[]
   chunks            PdfChunk[]
@@ -52,11 +57,7 @@ model Chat {
   aiResponse      String   @db.Text
 
   pdfId           String
-  pdf             Pdf @relation(
-    fields: [pdfId],
-    references: [id],
-    onDelete: Cascade
-  )
+  pdf             Pdf @relation(fields: [pdfId], references: [id], onDelete: Cascade)
 
   createdAt       DateTime @default(now())
 
@@ -67,11 +68,7 @@ model PdfChunk {
   id              String   @id @default(cuid())
 
   pdfId           String
-  pdf             Pdf @relation(
-    fields: [pdfId],
-    references: [id],
-    onDelete: Cascade
-  )
+  pdf             Pdf @relation(fields: [pdfId], references: [id], onDelete: Cascade)
 
   chunkIndex      Int
 
