@@ -1,15 +1,7 @@
-import { Pinecone } from
-"@pinecone-database/pinecone";
+import "dotenv/config";
 
-/*
-|--------------------------------------------------------------------------
-| Centralized Pinecone Client
-|--------------------------------------------------------------------------
-|
-| One reusable Pinecone instance
-| for the entire backend.
-|
-*/
+import { Pinecone }
+from "@pinecone-database/pinecone";
 
 const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY,
