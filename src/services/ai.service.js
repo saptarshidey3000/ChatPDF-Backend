@@ -1,66 +1,113 @@
-import openai from "../config/openai";
+import gemini from "../config/gemini.js";
+
 /*
 |--------------------------------------------------------------------------
 | EMBEDDING GENERATION
 |--------------------------------------------------------------------------
 |
-| This converts text into vectors.
+| Converts text into vector embeddings.
 |
-| These vectors are later stored in Pinecone.
+| These embeddings are later stored in Pinecone.
 |
 | Model:
-| text-embedding-3-small
+| text-embedding-004
 |
 */
 
 export const generateEmbedding = async (text) => {
-    try {
-        //calling the OpenAI API to generate an embedding for the given text
-        const response = await openai.embeddings.create({
-            model: "text-embedding-3-small",
-            input: text,
-        });
-        return response.data[0].embedding;
-    } catch (error) {
-        console.error("Error generating embedding:", error);
-        throw new Error("Failed to generate embedding");
-    }
+  try {
+
+    const response =
+      await gemini.models.embedContent({
+
+        model: "gemini-embedding-001",
+
+        contents: text,
+      });
+
+    return response.embeddings[0].values;
+
+  } catch (error) {
+
+    console.error(
+      "Error generating embedding:",
+      error
+    );
+
+    throw new Error(
+      "Failed to generate embedding"
+    );
+  }
 };
+
 /*
 |--------------------------------------------------------------------------
 | CHAT COMPLETION
 |--------------------------------------------------------------------------
 |
-| This generates AI responses.
+| Generates AI responses.
 |
 | Model:
-| GPT-4.1-mini
+| gemini-2.0-flash
 |
 */
-export const generateChatCompletion = async (
-systemPrompt,
-userMessage,
-) => {
-    try {
-        //sending conversation to openai to generate a response
-        const response = await openai.chat.completions.create({
-            model: "gpt-4.1-mini",
-            messages: [
-                {
-                    role: "system",
-                    content: systemPrompt,
-                },
-                {
-                    role: "user",
-                    content: userMessage,
-                },
-            ] ,
-            //lowering the temperature makes the output more deterministic
-            temperature: 0.2,
-        });
-        return response.choices[0].message;
-    } catch (error) {
-        console.error("Error generating chat completion:", error);
-        throw new Error("Failed to generate chat completion");
-    }
-}
+
+export const generateChatCompletion = async ({
+  systemPrompt,
+  userMessage,
+}) => {
+  try {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Combining system + user prompt
+    |--------------------------------------------------------------------------
+    |
+    | Gemini SDK works differently from OpenAI.
+    |
+    | So we manually combine context.
+    |
+    */
+
+    const prompt = `
+System Instructions:
+${systemPrompt}
+
+User Message:
+${userMessage}
+`;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Calling Gemini Chat Model
+    |--------------------------------------------------------------------------
+    */
+
+    const response =
+      await gemini.models.generateContent({
+
+         model: "gemini-2.5-flash",
+
+        contents: prompt,
+      });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Returning final AI text response
+    |--------------------------------------------------------------------------
+    */
+
+    return response.text;
+
+  } catch (error) {
+
+    console.error(
+      "Error generating chat completion:",
+      error
+    );
+
+    throw new Error(
+      "Failed to generate chat completion"
+    );
+  }
+};
