@@ -85,48 +85,49 @@ export const generateChatCompletion = async ({
   systemPrompt,
   userMessage,
 }) => {
+
   try {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Combining system + user prompt
-    |--------------------------------------------------------------------------
-    |
-    | Gemini SDK works differently from OpenAI.
-    |
-    | So we manually combine context.
-    |
-    */
-
     const prompt = `
-System Instructions:
+SYSTEM:
 ${systemPrompt}
 
-User Message:
+USER:
 ${userMessage}
 `;
-
-    /*
-    |--------------------------------------------------------------------------
-    | Calling Gemini Chat Model
-    |--------------------------------------------------------------------------
-    */
 
     const response =
       await gemini.models.generateContent({
 
-         model: "gemini-2.5-flash",
+        model:
+          "gemini-2.5-flash",
 
         contents: prompt,
       });
 
+    console.log(
+      "\nFULL GEMINI RESPONSE:\n",
+      JSON.stringify(response, null, 2)
+    );
+
     /*
     |--------------------------------------------------------------------------
-    | Returning final AI text response
+    | Extract AI text safely
     |--------------------------------------------------------------------------
     */
 
-    return response.text;
+    const text =
+      response?.candidates?.[0]
+        ?.content?.parts?.[0]?.text;
+
+    if (!text) {
+
+      throw new Error(
+        "No AI response generated"
+      );
+    }
+
+    return text;
 
   } catch (error) {
 
