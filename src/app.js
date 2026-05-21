@@ -11,6 +11,7 @@ import asyncHandler from "./utils/asyncHandler.js";
 import { clerkMiddleware } from "@clerk/express";
 import testRoutes from "./routes/test.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
+import chatRoutes from "./routes/chat.routes.js";
 
 const app = express();
 
@@ -85,6 +86,9 @@ app.use("/api/test", testRoutes);
 
  //upload routes
 app.use("/api/v1/upload", uploadRoutes);
+
+//chat routes
+app.use("/api/v1/chat", chatRoutes);
 
 // Handle all application errors
 app.use(errorMiddleware);
