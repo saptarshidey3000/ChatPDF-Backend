@@ -1,9 +1,17 @@
+// src/test-vector.js
+
 import "dotenv/config";
 
 import {
   storePdfChunks,
   searchSimilarChunks,
 } from "./services/vector.service.js";
+
+/*
+|--------------------------------------------------------------------------
+| TEST VECTOR FLOW
+|--------------------------------------------------------------------------
+*/
 
 const testVectorFlow = async () => {
 
@@ -15,14 +23,12 @@ const testVectorFlow = async () => {
 
     /*
     |--------------------------------------------------------------------------
-    | Fake PDF chunks
+    | Fake PDF Chunks
     |--------------------------------------------------------------------------
-    |
-    | Simulating chunks extracted from PDF
-    |
     */
 
-    const chunks = [
+    const testChunks = [
+
       {
         chunkIndex: 0,
 
@@ -53,54 +59,97 @@ const testVectorFlow = async () => {
 
     /*
     |--------------------------------------------------------------------------
-    | Store vectors in Pinecone
+    | Store Chunks
     |--------------------------------------------------------------------------
     */
 
-    await storePdfChunks({
-      pdfId: "test-pdf-123",
+    const storeResponse =
+      await storePdfChunks({
 
-      chunks,
-    });
+        pdfId:
+          "test-pdf-123",
+
+        chunks:
+          testChunks,
+      });
 
     console.log(
-      "Chunks stored successfully."
+      "\nSTORE RESPONSE:\n"
     );
 
-    console.log(
-      "\n--- TESTING SIMILARITY SEARCH ---\n"
-    );
+    console.log(storeResponse);
 
     /*
     |--------------------------------------------------------------------------
-    | User question
+    | Similarity Search
     |--------------------------------------------------------------------------
     */
 
-    const results =
+    console.log(
+      "\n--- TESTING SEARCH ---\n"
+    );
+
+    const searchResults =
       await searchSimilarChunks({
 
         query:
-          "What is AI?",
+          "What is deep learning?",
 
-        topK: 2,
+        pdfId:
+          "test-pdf-123",
+
+        topK:
+          2,
       });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Print results
-    |--------------------------------------------------------------------------
-    */
+    console.log(
+      "\nSEARCH RESULTS:\n"
+    );
 
     console.log(
-      JSON.stringify(results, null, 2)
+      JSON.stringify(
+        searchResults,
+        null,
+        2
+      )
+    );
+
+    console.log(
+      "\n--- TEST SUCCESSFUL ---\n"
     );
 
   } catch (error) {
 
+    console.error(
+      "\n--- TEST FAILED ---\n"
+    );
+
     console.error(error);
 
+    if (error?.message) {
+
+      console.log(
+        "\nERROR MESSAGE:\n"
+      );
+
+      console.log(error.message);
+    }
+
+    if (error?.stack) {
+
+      console.log(
+        "\nSTACK TRACE:\n"
+      );
+
+      console.log(error.stack);
+    }
   }
 };
+
+/*
+|--------------------------------------------------------------------------
+| RUN TEST
+|--------------------------------------------------------------------------
+*/
 
 testVectorFlow();
