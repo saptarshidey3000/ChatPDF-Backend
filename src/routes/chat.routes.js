@@ -4,6 +4,7 @@ import express from "express";
 // from "../middlewares/auth.middleware.js";
 
 import {askPdfQuestion} from "../controllers/chat.controller.js";
+import {streamPdfAnswer} from "../controllers/stream.controller.js";
 
 const router = express.Router();
 
@@ -17,6 +18,12 @@ router.post(
   "/ask",
 //   requireAuth,
   askPdfQuestion
+);
+
+//Stream PDF Answer
+router.post(
+  "/stream",
+  streamPdfAnswer
 );
 
 export default router;
