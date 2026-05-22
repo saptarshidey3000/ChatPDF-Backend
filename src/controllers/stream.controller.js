@@ -1,4 +1,4 @@
-import {streamRagResponse} from "../services/ai.service.js";
+import {generateStreamingChatCompletion} from "../services/ai.service.js";
 
 //Stream PDFAI response
 export const streamPdfAnswer = async (req, res) => {
@@ -34,8 +34,8 @@ export const streamPdfAnswer = async (req, res) => {
             "Connection",
             "keep-alive"
         );
-        //Strart streaming RAG response
-        await streamRagResponse({
+        //Start streaming RAG response
+        await generateStreamingChatCompletion({
             pdfId,
             question,
             userId: req.userId,
