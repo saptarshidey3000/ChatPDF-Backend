@@ -141,3 +141,37 @@ ${userMessage}
     );
   }
 };
+
+//streaming chat completion using Gemini's streaming API
+
+export const
+generateStreamingChatCompletion = async ({
+  systemPrompt,
+  userMessage,
+}) => {
+  try{
+    //build full prompt
+    const prompt = `   
+  SYSTEM:
+  ${systemPrompt}
+  USER:
+  ${userMessage}
+  `;
+  //start Gemini streaming response
+  const response = await gemini.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: prompt,
+    stream: true, //enable streaming
+  });
+  return response; //caller will handle the stream
+  } catch (error) {
+
+    console.error(
+      "Error generating streaming chat completion:",
+      error
+    );
+    throw new Error(
+      "Failed to generate streaming chat completion"
+    );
+  }
+};
