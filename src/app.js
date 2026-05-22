@@ -12,6 +12,8 @@ import { clerkMiddleware } from "@clerk/express";
 import testRoutes from "./routes/test.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
+import securityMiddleware from "./middlewares/security.middleware.js";
+import {globalLimiter} from "./middlewares/rateLimit.middleware.js";
 
 const app = express();
 
@@ -92,5 +94,8 @@ app.use("/api/v1/chat", chatRoutes);
 
 // Handle all application errors
 app.use(errorMiddleware);
+
+securityMiddleware(app);
+app.use(globalLimiter);
 
 export default app;
