@@ -15,11 +15,11 @@ export const uploadPdf = asyncHandler(
     });
 
     return res.status(201).json(
-      new ApiResponse(
-        201,
-        pdf,
-        "PDF uploaded successfully"
-      )
+new ApiResponse(
+  201,
+  "PDF uploaded successfully",
+  pdf
+)
     );
   }
 );
