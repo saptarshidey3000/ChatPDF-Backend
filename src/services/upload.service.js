@@ -1,5 +1,4 @@
 import prisma from "../config/db.js";
-
 import { utapi } from "../config/uploadthing.js";
 
 export const uploadPdfService = async ({
@@ -7,10 +6,16 @@ export const uploadPdfService = async ({
   userId,
 }) => {
 
+  console.log("STEP 1");
+
+  console.log("FILE EXISTS:", !!file);
+
+  console.log("BUFFER EXISTS:", !!file.buffer);
+
   /*
-  |--------------------------------------------------
-  | Convert multer buffer to File
-  |--------------------------------------------------
+  |-----------------------------------------
+  | Create File
+  |-----------------------------------------
   */
 
   const pdfFile = new File(
@@ -21,34 +26,38 @@ export const uploadPdfService = async ({
     }
   );
 
+  console.log("STEP 2");
+
+  console.log(pdfFile);
+
   /*
-  |--------------------------------------------------
-  | Upload to UploadThing
-  |--------------------------------------------------
+  |-----------------------------------------
+  | UploadThing Upload
+  |-----------------------------------------
   */
 
   const uploadedFiles =
-  await utapi.uploadFiles([pdfFile]);
+    await utapi.uploadFiles([pdfFile]);
 
-const uploadedFile =
-  uploadedFiles[0];
+  console.log("STEP 3");
 
-  /*
-  |--------------------------------------------------
-  | Upload failed
-  |--------------------------------------------------
-  */
+  console.log(uploadedFiles);
 
-  if (!uploadedFile.data) {
+  const uploadedFile =
+    uploadedFiles[0];
+
+  if (!uploadedFile?.data) {
     throw new Error(
-      "Failed to upload PDF"
+      "Failed UploadThing upload"
     );
   }
 
+  console.log("STEP 4");
+
   /*
-  |--------------------------------------------------
-  | Save metadata to DB
-  |--------------------------------------------------
+  |-----------------------------------------
+  | Save DB
+  |-----------------------------------------
   */
 
   const pdf = await prisma.pdf.create({
@@ -71,6 +80,8 @@ const uploadedFile =
         "PROCESSING",
     },
   });
+
+  console.log("STEP 5");
 
   return pdf;
 };
