@@ -1,14 +1,58 @@
 import prisma from "../config/db.js";
 
+import { verifyToken }
+from "@clerk/backend";
+
 const authMiddleware = async (
   req,
   res,
   next
 ) => {
+
   try {
 
+    /*
+    |-----------------------------------------
+    | Extract Bearer Token
+    |-----------------------------------------
+    */
+
+    const authHeader =
+      req.headers.authorization;
+
+    if (
+      !authHeader ||
+      !authHeader.startsWith(
+        "Bearer "
+      )
+    ) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const token =
+      authHeader.split(" ")[1];
+
+    /*
+    |-----------------------------------------
+    | Verify Clerk JWT
+    |-----------------------------------------
+    */
+
+    const payload =
+      await verifyToken(
+        token,
+        {
+          secretKey:
+            process.env
+              .CLERK_SECRET_KEY,
+        }
+      );
+
     const clerkUserId =
-      req.auth?.userId;
+      payload.sub;
 
     if (!clerkUserId) {
       return res.status(401).json({
@@ -19,7 +63,7 @@ const authMiddleware = async (
 
     /*
     |-----------------------------------------
-    | Find Existing User
+    | Find/Create User
     |-----------------------------------------
     */
 
@@ -30,32 +74,22 @@ const authMiddleware = async (
         },
       });
 
-    /*
-    |-----------------------------------------
-    | Auto Create User
-    |-----------------------------------------
-    */
-
     if (!user) {
 
       user =
         await prisma.user.create({
           data: {
+
             clerkUserId,
 
             email:
-              req.auth.sessionClaims
-                ?.email || "",
+              payload.email || "",
 
             fullName:
-              req.auth.sessionClaims
-                ?.fullName || "User",
+              payload.fullName ||
+              "User",
           },
         });
-
-      console.log(
-        "New user created"
-      );
     }
 
     req.user = user;
@@ -63,7 +97,13 @@ const authMiddleware = async (
     next();
 
   } catch (error) {
-    next(error);
+
+    console.error(error);
+
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+    });
   }
 };
 
