@@ -11,34 +11,61 @@ export const uploadPdfService =
 
     /*
     |-----------------------------------------
-    | Upload File Buffer
+    | Convert Buffer -> Blob
     |-----------------------------------------
     */
 
-    const uploadedFiles =
-      await utapi.uploadFiles([
-        new File(
-          [file.buffer],
-          file.originalname,
-          {
-            type:
-              file.mimetype,
-          }
-        ),
-      ]);
-
-    const uploadedFile =
-      uploadedFiles[0];
-
-    console.log(
-      uploadedFile
+    const blob = new Blob(
+      [file.buffer],
+      {
+        type: file.mimetype,
+      }
     );
 
+    /*
+    |-----------------------------------------
+    | Create File
+    |-----------------------------------------
+    */
+
+    const pdfFile = new File(
+      [blob],
+      file.originalname,
+      {
+        type: file.mimetype,
+        lastModified: Date.now(),
+      }
+    );
+
+    /*
+    |-----------------------------------------
+    | UploadThing Upload
+    |-----------------------------------------
+    */
+
+    const response =
+      await utapi.uploadFiles(
+        [pdfFile]
+      );
+
+    console.log(response);
+
+    const uploadedFile =
+      response[0];
+
+    /*
+    |-----------------------------------------
+    | Upload Error
+    |-----------------------------------------
+    */
+
     if (
+      !uploadedFile ||
       uploadedFile.error
     ) {
       throw new Error(
-        uploadedFile.error.message
+        uploadedFile?.error?.message ||
+        "Upload failed"
       );
     }
 

@@ -1,5 +1,9 @@
-import { UTApi } from "uploadthing/server";
+import { UTApi }
+from "uploadthing/server";
 
-export const utapi = new UTApi({
-  apiKey: process.env.UPLOADTHING_TOKEN,
-});
+export const utapi =
+  new UTApi({
+    apiKey:
+      process.env
+        .UPLOADTHING_SECRET,
+  });
