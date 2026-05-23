@@ -13,6 +13,7 @@ import { clerkMiddleware } from "@clerk/express";
 import testRoutes from "./routes/test.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
+import requireAuth from "./middlewares/auth.middleware.js";
 
 import securityMiddleware from "./middlewares/security.middleware.js";
 import { globalLimiter } from "./middlewares/rateLimit.middleware.js";
@@ -105,16 +106,18 @@ app.get(
 // Protected Route Test
 // =============================
 
-app.get("/protected", (req, res) => {
+app.get(
+  "/protected",
+  requireAuth(),
+  (req, res) => {
 
-  res.json({
-    success: true,
-    authExists: !!req.auth,
-    auth: req.auth,
-    userId: req.auth?.userId || null,
-  });
+    res.json({
+      success: true,
+      userId: req.auth.userId,
+    });
 
-});
+  }
+);
 
 
 // =============================
