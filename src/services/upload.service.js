@@ -27,8 +27,11 @@ export const uploadPdfService = async ({
   |--------------------------------------------------
   */
 
-  const uploadedFile =
-    await utapi.uploadFiles(pdfFile);
+  const uploadedFiles =
+  await utapi.uploadFiles([pdfFile]);
+
+const uploadedFile =
+  uploadedFiles[0];
 
   /*
   |--------------------------------------------------
