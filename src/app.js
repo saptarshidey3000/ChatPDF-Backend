@@ -9,16 +9,30 @@ import errorMiddleware from "./middlewares/error.middleware.js";
 import asyncHandler from "./utils/asyncHandler.js";
 
 import { clerkMiddleware } from "@clerk/express";
+
 import testRoutes from "./routes/test.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
+
 import securityMiddleware from "./middlewares/security.middleware.js";
-import {globalLimiter} from "./middlewares/rateLimit.middleware.js";
+import { globalLimiter } from "./middlewares/rateLimit.middleware.js";
 
 const app = express();
 
 
-// Allow frontend requests
+// =============================
+// Security Middleware
+// =============================
+
+securityMiddleware(app);
+
+app.use(globalLimiter);
+
+
+// =============================
+// CORS
+// =============================
+
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -27,23 +41,28 @@ app.use(
 );
 
 
-// Parse JSON request body
+// =============================
+// Core Middleware
+// =============================
+
 app.use(express.json());
 
-
-// Read cookies from requests
 app.use(cookieParser());
 
-
-// Log API requests in terminal
 app.use(morgan("dev"));
 
 
-// Add Clerk auth info to req.auth
+// =============================
+// Clerk Auth Middleware
+// =============================
+
 app.use(clerkMiddleware());
 
 
-// Health check route
+// =============================
+// Health Check
+// =============================
+
 app.get("/", (req, res) => {
   res.json({
     success: true,
@@ -52,50 +71,67 @@ app.get("/", (req, res) => {
 });
 
 
+// =============================
+// Test PostgreSQL Connection
+// =============================
 
-
-// Test PostgreSQL connection
 app.get("/test-db", async (req, res) => {
+
   const data = await prisma.test.findMany();
 
   res.json({
     success: true,
     data,
-  });  
+  });
+
 });
 
 
-// Test global error handling
+// =============================
+// Test Error Middleware
+// =============================
+
 app.get(
   "/error-test",
   asyncHandler(async (req, res) => {
+
     throw new Error("Test error");
+
   })
 );
 
 
-// Check Clerk auth data
+// =============================
+// Protected Route Test
+// =============================
+
 app.get("/protected", (req, res) => {
+
   res.json({
     success: true,
     authExists: !!req.auth,
     auth: req.auth,
     userId: req.auth?.userId || null,
   });
+
 });
+
+
+// =============================
+// Routes
+// =============================
 
 app.use("/api/test", testRoutes);
 
- //upload routes
 app.use("/api/v1/upload", uploadRoutes);
 
-//chat routes
 app.use("/api/v1/chat", chatRoutes);
 
-// Handle all application errors
-app.use(errorMiddleware);
 
-securityMiddleware(app);
-app.use(globalLimiter);
+// =============================
+// Global Error Handler
+// =============================
+
+app.use(errorMiddleware);
 
 export default app;
