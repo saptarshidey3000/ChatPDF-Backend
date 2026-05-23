@@ -1,7 +1,5 @@
 import prisma from "../config/db.js";
 
-import { getAuth } from "@clerk/express";
-
 const authMiddleware = async (
   req,
   res,
@@ -9,41 +7,63 @@ const authMiddleware = async (
 ) => {
   try {
 
-    // Get Clerk auth data
-    const { userId } = getAuth(req);
+    const clerkUserId =
+      req.auth?.userId;
 
-    // No authenticated user
-    if (!userId) {
+    if (!clerkUserId) {
       return res.status(401).json({
         success: false,
         message: "Unauthorized",
       });
     }
 
-    // Find user in database
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
+    /*
+    |-----------------------------------------
+    | Find Existing User
+    |-----------------------------------------
+    */
 
-    // User missing in DB
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found in database",
+    let user =
+      await prisma.user.findUnique({
+        where: {
+          clerkUserId,
+        },
       });
+
+    /*
+    |-----------------------------------------
+    | Auto Create User
+    |-----------------------------------------
+    */
+
+    if (!user) {
+
+      user =
+        await prisma.user.create({
+          data: {
+            clerkUserId,
+
+            email:
+              req.auth.sessionClaims
+                ?.email || "",
+
+            fullName:
+              req.auth.sessionClaims
+                ?.fullName || "User",
+          },
+        });
+
+      console.log(
+        "New user created"
+      );
     }
 
-    // Attach user to request
     req.user = user;
 
     next();
 
   } catch (error) {
-
     next(error);
-
   }
 };
 
