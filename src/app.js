@@ -108,14 +108,12 @@ app.get(
 
 app.get(
   "/protected",
-  requireAuth(),
+  requireAuth,
   (req, res) => {
-
     res.json({
       success: true,
       userId: req.auth.userId,
     });
-
   }
 );
 
