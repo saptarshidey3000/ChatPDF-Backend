@@ -77,11 +77,11 @@ app.get("/", (req, res) => {
 
 app.get("/test-db", async (req, res) => {
 
-  const data = await prisma.test.findMany();
+  await prisma.$queryRaw`SELECT 1`;
 
   res.json({
     success: true,
-    data,
+    message: "Database connected successfully",
   });
 
 });
