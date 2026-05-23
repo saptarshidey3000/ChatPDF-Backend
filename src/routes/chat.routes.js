@@ -1,7 +1,7 @@
 import express from "express";
 
-// import requireAuth
-// from "../middlewares/auth.middleware.js";
+import requireAuth
+from "../middlewares/auth.middleware.js";
 
 import {askPdfQuestion} from "../controllers/chat.controller.js";
 import {streamPdfAnswer} from "../controllers/stream.controller.js";
@@ -17,7 +17,7 @@ const router = express.Router();
 
 router.post(
   "/ask",
-//   requireAuth,
+  requireAuth,
   aiLimiter, //rate limit RAG endpoint
   askPdfQuestion
 );
@@ -25,7 +25,7 @@ router.post(
 //Stream PDF Answer
 router.post(
   "/stream",
-//   requireAuth,
+  requireAuth,
   aiLimiter, //rate limit streaming endpoint
   streamPdfAnswer
 );
