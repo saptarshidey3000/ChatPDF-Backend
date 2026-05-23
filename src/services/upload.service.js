@@ -1,87 +1,75 @@
 import prisma from "../config/db.js";
-import { utapi } from "../config/uploadthing.js";
 
-export const uploadPdfService = async ({
-  file,
-  userId,
-}) => {
+import { utapi }
+from "../config/uploadthing.js";
 
-  console.log("STEP 1");
+export const uploadPdfService =
+  async ({
+    file,
+    userId,
+  }) => {
 
-  console.log("FILE EXISTS:", !!file);
+    /*
+    |-----------------------------------------
+    | Upload File Buffer
+    |-----------------------------------------
+    */
 
-  console.log("BUFFER EXISTS:", !!file.buffer);
+    const uploadedFiles =
+      await utapi.uploadFiles([
+        new File(
+          [file.buffer],
+          file.originalname,
+          {
+            type:
+              file.mimetype,
+          }
+        ),
+      ]);
 
-  /*
-  |-----------------------------------------
-  | Create File
-  |-----------------------------------------
-  */
+    const uploadedFile =
+      uploadedFiles[0];
 
-  const pdfFile = new File(
-    [file.buffer],
-    file.originalname,
-    {
-      type: file.mimetype,
-    }
-  );
-
-  console.log("STEP 2");
-
-  console.log(pdfFile);
-
-  /*
-  |-----------------------------------------
-  | UploadThing Upload
-  |-----------------------------------------
-  */
-
-  const uploadedFiles =
-    await utapi.uploadFiles([pdfFile]);
-
-  console.log("STEP 3");
-
-  console.log(uploadedFiles);
-
-  const uploadedFile =
-    uploadedFiles[0];
-
-  if (!uploadedFile?.data) {
-    throw new Error(
-      "Failed UploadThing upload"
+    console.log(
+      uploadedFile
     );
-  }
 
-  console.log("STEP 4");
+    if (
+      uploadedFile.error
+    ) {
+      throw new Error(
+        uploadedFile.error.message
+      );
+    }
 
-  /*
-  |-----------------------------------------
-  | Save DB
-  |-----------------------------------------
-  */
+    /*
+    |-----------------------------------------
+    | Save DB
+    |-----------------------------------------
+    */
 
-  const pdf = await prisma.pdf.create({
-    data: {
-      fileName:
-        uploadedFile.data.name,
+    const pdf =
+      await prisma.pdf.create({
+        data: {
 
-      originalName:
-        file.originalname,
+          fileName:
+            uploadedFile.data.name,
 
-      fileUrl:
-        uploadedFile.data.url,
+          originalName:
+            file.originalname,
 
-      fileSize:
-        file.size,
+          fileUrl:
+            uploadedFile.data.ufsUrl,
 
-      userId,
+          fileSize:
+            file.size,
 
-      processingStatus:
-        "PROCESSING",
-    },
-  });
+          userId,
 
-  console.log("STEP 5");
+          processingStatus:
+            "PROCESSING",
+        },
+      });
 
-  return pdf;
-};
+    return pdf;
+  };
