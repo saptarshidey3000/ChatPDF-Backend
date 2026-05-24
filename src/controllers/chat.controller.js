@@ -2,6 +2,7 @@ import {
   generateRagResponse,
 } from "../services/rag.service.js";
 
+import { getPdfChats } from "../services/chat.service.js";
 /*
 |--------------------------------------------------------------------------
 | Ask PDF Question
@@ -88,3 +89,39 @@ export const askPdfQuestion =
   });
 };
   };
+
+  export const getChatsByPdfId = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const { pdfId } =
+      req.params;
+
+    const chats =
+      await getPdfChats(pdfId);
+
+    return res.status(200).json({
+
+      success: true,
+
+      data: chats,
+    });
+
+  } catch (error) {
+
+    console.error(
+      "GET CHATS ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: error.message,
+    });
+  }
+};

@@ -6,6 +6,7 @@ from "../middlewares/auth.middleware.js";
 import {askPdfQuestion} from "../controllers/chat.controller.js";
 import {streamPdfAnswer} from "../controllers/stream.controller.js";
 import {aiLimiter} from "../middlewares/rateLimit.middleware.js";
+import { getChatsByPdfId } from "../controllers/chat.controller.js";
 
 const router = express.Router();
 
@@ -15,18 +16,23 @@ const router = express.Router();
 |--------------------------------------------------------------------------
 */
 
+router.get(
+  "/:pdfId",
+  requireAuth,
+  getChatsByPdfId
+);
+
 router.post(
   "/ask",
   requireAuth,
-  aiLimiter, //rate limit RAG endpoint
+  aiLimiter,
   askPdfQuestion
 );
 
-//Stream PDF Answer
 router.post(
   "/stream",
   requireAuth,
-  aiLimiter, //rate limit streaming endpoint
+  aiLimiter,
   streamPdfAnswer
 );
 
