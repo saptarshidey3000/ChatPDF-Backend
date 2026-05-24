@@ -1,15 +1,22 @@
-import { QdrantClient }
-from "@qdrant/js-client-rest";
+import {
+  QdrantClient,
+} from "@qdrant/js-client-rest";
 
 /*
-|--------------------------------------------------------------------------
+|-----------------------------------------
 | Qdrant Client
-|--------------------------------------------------------------------------
+|-----------------------------------------
 */
 
 const qdrant =
   new QdrantClient({
-    url: "http://localhost:6333",
+
+    url:
+      process.env.QDRANT_URL,
+
+    apiKey:
+      process.env
+        .QDRANT_API_KEY,
   });
 
 export default qdrant;
