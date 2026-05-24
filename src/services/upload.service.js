@@ -18,138 +18,211 @@ import {
   storePdfChunks,
 } from "./vector.service.js";
 
+/*
+|-----------------------------------------
+| Upload PDF Service
+|-----------------------------------------
+*/
+
 export const uploadPdfService =
   async ({
     file,
     userId,
   }) => {
 
-    /*
-    |-----------------------------------------
-    | Upload PDF To Cloudinary
-    |-----------------------------------------
-    */
+    try {
 
-    const uploadResult =
-      await new Promise(
-        (resolve, reject) => {
+      /*
+      |-----------------------------------------
+      | Upload PDF To Cloudinary
+      |-----------------------------------------
+      */
 
-          const stream =
-            cloudinary.uploader.upload_stream(
+      const uploadResult =
+        await new Promise(
+          (resolve, reject) => {
 
-              {
-                resource_type:
-                  "raw",
+            const stream =
+              cloudinary.uploader.upload_stream(
 
-                folder:
-                  "chatpdf",
-              },
+                {
+                  resource_type:
+                    "raw",
 
-              (error, result) => {
+                  folder:
+                    "chatpdf",
+                },
 
-                if (error)
-                  reject(error);
+                (error, result) => {
 
-                else
-                  resolve(result);
-              }
-            );
+                  if (error) {
 
-          streamifier
-            .createReadStream(
-              file.buffer
-            )
-            .pipe(stream);
-        }
+                    reject(error);
+
+                  } else {
+
+                    resolve(result);
+                  }
+                }
+              );
+
+            streamifier
+              .createReadStream(
+                file.buffer
+              )
+              .pipe(stream);
+          }
+        );
+
+      console.log(
+        "\nPDF UPLOADED TO CLOUDINARY\n"
       );
 
-    /*
-    |-----------------------------------------
-    | Save PDF Metadata
-    |-----------------------------------------
-    */
+      /*
+      |-----------------------------------------
+      | Save PDF Metadata
+      |-----------------------------------------
+      */
 
-    const pdf =
-      await prisma.pdf.create({
+      const pdf =
+        await prisma.pdf.create({
+
+          data: {
+
+            fileName:
+              uploadResult.public_id,
+
+            originalName:
+              file.originalname,
+
+            fileUrl:
+              uploadResult.secure_url,
+
+            fileSize:
+              file.size,
+
+            userId,
+
+            processingStatus:
+              "PROCESSING",
+          },
+        });
+
+      console.log(
+        "\nPDF SAVED TO DATABASE\n"
+      );
+
+      /*
+      |-----------------------------------------
+      | Extract PDF Text
+      |-----------------------------------------
+      */
+
+      const extractedText =
+        await extractPdfText(
+          file.buffer
+        );
+
+      console.log(
+        "\nTEXT LENGTH:\n",
+        extractedText?.length
+      );
+
+      console.log(
+        "\nEXTRACTED TEXT SAMPLE:\n",
+        extractedText?.slice(0, 1000)
+      );
+
+      /*
+      |-----------------------------------------
+      | Validate Extracted Text
+      |-----------------------------------------
+      */
+
+      if (
+        !extractedText ||
+        extractedText.trim().length === 0
+      ) {
+
+        throw new Error(
+          "No text extracted from PDF"
+        );
+      }
+
+      /*
+      |-----------------------------------------
+      | Create Chunks
+      |-----------------------------------------
+      */
+
+      const chunks =
+        chunkText({
+
+          text:
+            extractedText,
+
+          pageNumber: 1,
+        });
+
+      console.log(
+        "\nTOTAL CHUNKS:\n",
+        chunks.length
+      );
+
+      console.log(
+        "\nFIRST CHUNK:\n",
+        chunks[0]
+      );
+
+      /*
+      |-----------------------------------------
+      | Store Vectors In Qdrant
+      |-----------------------------------------
+      */
+
+      await storePdfChunks({
+
+        pdfId:
+          pdf.id,
+
+        chunks,
+      });
+
+      console.log(
+        "\nVECTORS STORED SUCCESSFULLY\n"
+      );
+
+      /*
+      |-----------------------------------------
+      | Update Processing Status
+      |-----------------------------------------
+      */
+
+      await prisma.pdf.update({
+
+        where: {
+          id: pdf.id,
+        },
 
         data: {
-
-          fileName:
-            uploadResult.public_id,
-
-          originalName:
-            file.originalname,
-
-          fileUrl:
-            uploadResult.secure_url,
-
-          fileSize:
-            file.size,
-
-          userId,
-
           processingStatus:
-            "PROCESSING",
+            "COMPLETED",
         },
       });
 
-    /*
-    |-----------------------------------------
-    | Extract PDF Text
-    |-----------------------------------------
-    */
-
-    const extractedText =
-      await extractPdfText(
-        file.buffer
+      console.log(
+        "\nPDF PROCESSING COMPLETED\n"
       );
 
-    /*
-    |-----------------------------------------
-    | Create Chunks
-    |-----------------------------------------
-    */
+      return pdf;
 
-    const chunks =
-      chunkText({
+    } catch (error) {
 
-        text:
-          extractedText,
+      console.error(
+        "\nUPLOAD PDF SERVICE ERROR:\n",
+        error
+      );
 
-        pageNumber: 1,
-      });
-
-    /*
-    |-----------------------------------------
-    | Store Vectors In Qdrant
-    |-----------------------------------------
-    */
-
-    await storePdfChunks({
-
-      pdfId:
-        pdf.id,
-
-      chunks,
-    });
-
-    /*
-    |-----------------------------------------
-    | Update Status
-    |-----------------------------------------
-    */
-
-    await prisma.pdf.update({
-
-      where: {
-        id: pdf.id,
-      },
-
-      data: {
-        processingStatus:
-          "COMPLETED",
-      },
-    });
-
-    return pdf;
+      throw error;
+    }
   };

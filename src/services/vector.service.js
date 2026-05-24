@@ -1,16 +1,20 @@
 import qdrant
 from "../config/qdrant.js";
 
-import { generateEmbedding }
-from "./ai.service.js";
+import { randomUUID }
+from "crypto";
+
+import {
+  generateEmbedding,
+} from "./ai.service.js";
 
 const COLLECTION_NAME =
   "chatpdf-collection";
 
 /*
-|--------------------------------------------------------------------------
+|------------------------------------------------------------------
 | Store PDF Chunks
-|--------------------------------------------------------------------------
+|------------------------------------------------------------------
 */
 
 export const storePdfChunks =
@@ -25,38 +29,58 @@ export const storePdfChunks =
 
       for (const chunk of chunks) {
 
-        // Generate embedding
+        /*
+        |------------------------------------------------------------
+        | Generate Embedding
+        |------------------------------------------------------------
+        */
+
         const embedding =
           await generateEmbedding(
             chunk.content
           );
 
-        // Create vector point
-points.push({
+        /*
+        |------------------------------------------------------------
+        | Create Vector Point
+        |------------------------------------------------------------
+        */
 
-  id:
-    chunk.chunkIndex + 1,
+        points.push({
 
-  vector:
-    embedding,
+          id:
+            randomUUID(),
 
-  payload: {
+          vector:
+            embedding,
 
-    pdfId,
+          payload: {
 
-    chunkIndex:
-      chunk.chunkIndex,
+            pdfId,
 
-    pageNumber:
-      chunk.pageNumber,
+            chunkIndex:
+              chunk.chunkIndex,
 
-    text:
-      chunk.content,
-  },
-});
+            pageNumber:
+              chunk.pageNumber,
+
+            text:
+              chunk.content,
+          },
+        });
       }
 
-      // Store vectors
+      console.log(
+        "\nTOTAL POINTS TO STORE:\n",
+        points.length
+      );
+
+      /*
+      |------------------------------------------------------------
+      | Store Vectors In Qdrant
+      |------------------------------------------------------------
+      */
+
       await qdrant.upsert(
         COLLECTION_NAME,
         {
@@ -66,13 +90,13 @@ points.push({
       );
 
       console.log(
-        "Chunks stored successfully."
+        "\nCHUNKS STORED SUCCESSFULLY\n"
       );
 
     } catch (error) {
 
       console.error(
-        "Error storing chunks:",
+        "\nERROR STORING CHUNKS:\n",
         error
       );
 
@@ -81,9 +105,9 @@ points.push({
   };
 
 /*
-|--------------------------------------------------------------------------
+|------------------------------------------------------------------
 | Search Similar Chunks
-|--------------------------------------------------------------------------
+|------------------------------------------------------------------
 */
 
 export const searchSimilarChunks =
@@ -95,11 +119,28 @@ export const searchSimilarChunks =
 
     try {
 
-      // Generate query embedding
-      const queryEmbedding =
-        await generateEmbedding(query);
+      /*
+      |------------------------------------------------------------
+      | Generate Query Embedding
+      |------------------------------------------------------------
+      */
 
-      // Search vectors
+      const queryEmbedding =
+        await generateEmbedding(
+          query
+        );
+
+      console.log(
+        "\nSEARCHING FOR PDF ID:\n",
+        pdfId
+      );
+
+      /*
+      |------------------------------------------------------------
+      | Search Vectors
+      |------------------------------------------------------------
+      */
+
       const results =
         await qdrant.search(
           COLLECTION_NAME,
@@ -112,9 +153,11 @@ export const searchSimilarChunks =
               topK,
 
             filter: {
+
               must: [
                 {
                   key: "pdfId",
+
                   match: {
                     value: pdfId,
                   },
@@ -124,12 +167,25 @@ export const searchSimilarChunks =
           }
         );
 
+      console.log(
+        "\nSEARCH RESULTS COUNT:\n",
+        results.length
+      );
+
+      if (results[0]) {
+
+        console.log(
+          "\nFIRST SEARCH RESULT:\n",
+          results[0]
+        );
+      }
+
       return results;
 
     } catch (error) {
 
       console.error(
-        "Error searching chunks:",
+        "\nERROR SEARCHING CHUNKS:\n",
         error
       );
 
