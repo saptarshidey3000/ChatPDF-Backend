@@ -1,15 +1,7 @@
+import "dotenv/config";
+
 import qdrant
 from "../config/qdrant.js";
-
-/*
-|--------------------------------------------------------------------------
-| Create Collection
-|--------------------------------------------------------------------------
-|
-| Vector size:
-| Gemini embeddings = 3072
-|
-*/
 
 const createCollection =
   async () => {
@@ -19,11 +11,8 @@ const createCollection =
       await qdrant.createCollection(
         "chatpdf-collection",
         {
-
           vectors: {
-
             size: 3072,
-
             distance: "Cosine",
           },
         }

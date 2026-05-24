@@ -2,11 +2,15 @@ import {
   QdrantClient,
 } from "@qdrant/js-client-rest";
 
-/*
-|-----------------------------------------
-| Qdrant Client
-|-----------------------------------------
-*/
+console.log(
+  "QDRANT URL:",
+  process.env.QDRANT_URL
+);
+
+console.log(
+  "QDRANT API KEY EXISTS:",
+  !!process.env.QDRANT_API_KEY
+);
 
 const qdrant =
   new QdrantClient({
@@ -15,8 +19,7 @@ const qdrant =
       process.env.QDRANT_URL,
 
     apiKey:
-      process.env
-        .QDRANT_API_KEY,
+      process.env.QDRANT_API_KEY,
   });
 
 export default qdrant;
