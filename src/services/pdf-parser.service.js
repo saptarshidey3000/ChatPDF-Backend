@@ -1,4 +1,21 @@
-import pdf from "pdf-parse";
+import * as PdfParse
+from "pdf-parse-new";
+
+/*
+|---------------------------------------------------------
+| Smart PDF Parser
+|---------------------------------------------------------
+*/
+
+const parser =
+  new PdfParse.SmartPDFParser({
+
+    oversaturationFactor: 1.5,
+
+    enableFastPath: true,
+
+    enableCache: true,
+  });
 
 /*
 |---------------------------------------------------------
@@ -7,21 +24,40 @@ import pdf from "pdf-parse";
 */
 
 export const extractPdfText =
-  async (pdfBuffer) => {
+  async (buffer) => {
 
     try {
 
-      const data =
-        await pdf(
-          pdfBuffer
+      const result =
+        await parser.parse(
+          buffer
         );
 
-      return data.text;
+      console.log(
+        "\nPDF PARSED SUCCESSFULLY\n"
+      );
+
+      console.log(
+        "Pages:",
+        result.numpages
+      );
+
+      console.log(
+        "Method:",
+        result?._meta?.method
+      );
+
+      console.log(
+        "Duration:",
+        result?._meta?.duration
+      );
+
+      return result.text;
 
     } catch (error) {
 
       console.error(
-        "PDF parsing error:",
+        "\nPDF PARSER ERROR:\n",
         error
       );
 
