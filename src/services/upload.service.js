@@ -6,6 +6,18 @@ from "../config/cloudinary.js";
 import streamifier
 from "streamifier";
 
+import {
+  extractPdfText,
+} from "./pdf-parser.service.js";
+
+import {
+  chunkText,
+} from "./chunking.service.js";
+
+import {
+  storePdfChunks,
+} from "./vector.service.js";
+
 export const uploadPdfService =
   async ({
     file,
@@ -59,6 +71,7 @@ export const uploadPdfService =
 
     const pdf =
       await prisma.pdf.create({
+
         data: {
 
           fileName:
@@ -79,6 +92,64 @@ export const uploadPdfService =
             "PROCESSING",
         },
       });
+
+    /*
+    |-----------------------------------------
+    | Extract PDF Text
+    |-----------------------------------------
+    */
+
+    const extractedText =
+      await extractPdfText(
+        file.buffer
+      );
+
+    /*
+    |-----------------------------------------
+    | Create Chunks
+    |-----------------------------------------
+    */
+
+    const chunks =
+      chunkText({
+
+        text:
+          extractedText,
+
+        pageNumber: 1,
+      });
+
+    /*
+    |-----------------------------------------
+    | Store Vectors In Qdrant
+    |-----------------------------------------
+    */
+
+    await storePdfChunks({
+
+      pdfId:
+        pdf.id,
+
+      chunks,
+    });
+
+    /*
+    |-----------------------------------------
+    | Update Status
+    |-----------------------------------------
+    */
+
+    await prisma.pdf.update({
+
+      where: {
+        id: pdf.id,
+      },
+
+      data: {
+        processingStatus:
+          "COMPLETED",
+      },
+    });
 
     return pdf;
   };
