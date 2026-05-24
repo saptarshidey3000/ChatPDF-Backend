@@ -1,7 +1,10 @@
 import prisma from "../config/db.js";
 
-import { utapi }
-from "../config/uploadthing.js";
+import cloudinary
+from "../config/cloudinary.js";
+
+import streamifier
+from "streamifier";
 
 export const uploadPdfService =
   async ({
@@ -11,67 +14,46 @@ export const uploadPdfService =
 
     /*
     |-----------------------------------------
-    | Convert Buffer -> Blob
+    | Upload PDF To Cloudinary
     |-----------------------------------------
     */
 
-    const blob = new Blob(
-      [file.buffer],
-      {
-        type: file.mimetype,
-      }
-    );
+    const uploadResult =
+      await new Promise(
+        (resolve, reject) => {
 
-    /*
-    |-----------------------------------------
-    | Create File
-    |-----------------------------------------
-    */
+          const stream =
+            cloudinary.uploader.upload_stream(
 
-    const pdfFile = new File(
-      [blob],
-      file.originalname,
-      {
-        type: file.mimetype,
-        lastModified: Date.now(),
-      }
-    );
+              {
+                resource_type:
+                  "raw",
 
-    /*
-    |-----------------------------------------
-    | UploadThing Upload
-    |-----------------------------------------
-    */
+                folder:
+                  "chatpdf",
+              },
 
-    const response =
-      await utapi.uploadFiles(
-        [pdfFile]
+              (error, result) => {
+
+                if (error)
+                  reject(error);
+
+                else
+                  resolve(result);
+              }
+            );
+
+          streamifier
+            .createReadStream(
+              file.buffer
+            )
+            .pipe(stream);
+        }
       );
 
-    console.log(response);
-
-    const uploadedFile =
-      response[0];
-
     /*
     |-----------------------------------------
-    | Upload Error
-    |-----------------------------------------
-    */
-
-    if (
-      !uploadedFile ||
-      uploadedFile.error
-    ) {
-      throw new Error(
-        uploadedFile?.error?.message ||
-        "Upload failed"
-      );
-    }
-
-    /*
-    |-----------------------------------------
-    | Save DB
+    | Save PDF Metadata
     |-----------------------------------------
     */
 
@@ -80,13 +62,13 @@ export const uploadPdfService =
         data: {
 
           fileName:
-            uploadedFile.data.name,
+            uploadResult.public_id,
 
           originalName:
             file.originalname,
 
           fileUrl:
-            uploadedFile.data.ufsUrl,
+            uploadResult.secure_url,
 
           fileSize:
             file.size,
