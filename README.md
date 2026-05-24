@@ -221,14 +221,21 @@ Gemini AI Response
 * Conversation memory
 
 ---
+# 🖼 Frontend Preview
+
+<p align="center">
+  <img width="1426" alt="Screenshot 2026-05-24 211156" src="https://github.com/user-attachments/assets/0a218614-5432-4c97-bf63-70c26a5c6a7b" />
+</p>
+
+<p align="center">
+  <img width="714" alt="Screenshot 2026-05-24 211323" src="https://github.com/user-attachments/assets/9def12a1-b384-4426-873e-cfef201d7af0" />
+</p>
+
+<p align="center">
+  <img width="1536" alt="chatpdf ui" src="https://github.com/user-attachments/assets/b47099be-d4c4-4e5b-92c3-94417fb10634" />
+</p>
+
 ---
-Frontend Preview
----
-<img width="1426" height="779" alt="Screenshot 2026-05-24 211156" src="https://github.com/user-attachments/assets/0a218614-5432-4c97-bf63-70c26a5c6a7b" />
-<img width="714" height="746" alt="Screenshot 2026-05-24 211323" src="https://github.com/user-attachments/assets/9def12a1-b384-4426-873e-cfef201d7af0" />
-<img width="1536" height="1024" alt="chatpdf ui" src="https://github.com/user-attachments/assets/b47099be-d4c4-4e5b-92c3-94417fb10634" />
 
 # Author
-
 Saptarshi Dey
-```
