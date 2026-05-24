@@ -1,4 +1,4 @@
-import pdfParse from "pdf-parse";
+import pdf from "pdf-parse";
 
 /*
 |-----------------------------------------
@@ -12,7 +12,7 @@ export const extractPdfText =
     try {
 
       const data =
-        await pdfParse(buffer);
+        await pdf(buffer);
 
       return data.text;
 
