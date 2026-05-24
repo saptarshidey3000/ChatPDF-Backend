@@ -1,4 +1,8 @@
-import pdf from "pdf-parse";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+
+const pdfParse = require("pdf-parse");
 
 /*
 |-----------------------------------------
@@ -12,7 +16,7 @@ export const extractPdfText =
     try {
 
       const data =
-        await pdf(buffer);
+        await pdfParse(buffer);
 
       return data.text;
 
