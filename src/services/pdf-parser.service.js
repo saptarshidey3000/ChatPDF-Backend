@@ -1,22 +1,20 @@
-import { createRequire } from "module";
-
-const require = createRequire(import.meta.url);
-
-const pdfParse = require("pdf-parse");
+import pdf from "pdf-parse";
 
 /*
-|-----------------------------------------
+|---------------------------------------------------------
 | Extract PDF Text
-|-----------------------------------------
+|---------------------------------------------------------
 */
 
 export const extractPdfText =
-  async (buffer) => {
+  async (pdfBuffer) => {
 
     try {
 
       const data =
-        await pdfParse(buffer);
+        await pdf(
+          pdfBuffer
+        );
 
       return data.text;
 
